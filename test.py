@@ -33,33 +33,32 @@ query = 'INSERT INTO `users` (`id`, `loginid`, `password` ,`auth_bit`, `lasttime
 
 db = mysql.connector.connect(**config)
 
-# if db.is_connected():
-#     cursor = db.cursor();
-#     cursor.execute('DROP TABLE IF EXISTS users')
-#     # db.commit()
-#     cursor.execute("CREATE table users (id INT,loginid INT, password TEXT, auth_bit int, lasttime TIMESTAMP, comment TEXT)")
-#     # cursor.execute("CREATE table users (id INT,loginid TEXT, password TEXT, auth_bit int, lasttime TIMESTAMP, comment TEXT)")
-#     # db.commit()
-#     for user in users_data_2:
-#         cursor.execute(query, user)
-#         db.commit()
-#     # records = cursor.fetchall()
-#     # for r in records:
-#     #     print(r)
-# else:
-#     print('false')
+if db.is_connected():
+    cursor = db.cursor();
+    cursor.execute('DROP TABLE IF EXISTS users')
+    # db.commit()
+    cursor.execute("CREATE table users (id INT,loginid INT, password TEXT, auth_bit int, lasttime TIMESTAMP, comment TEXT)")
+    # cursor.execute("CREATE table users (id INT,loginid TEXT, password TEXT, auth_bit int, lasttime TIMESTAMP, comment TEXT)")
+    # db.commit()
+    db.commit()
+    for user in users_data_2:
+        cursor.execute(query, user)
+        db.commit()
+    # records = cursor.fetchall()
+    # for r in records:
+    #     print(r)
+else:
+    print('false')
 
 import const
 import numpy as np
 
-r = np.random.randint(6)
-for action in const.actions:
-    print(action)
-r = 5
-# escape_type = 3
-# column_type = 5
-escape_type = np.random.randint(1, 6)
-column_type = np.random.randint(2, 6)
+# for action in const.actions:
+#     print(action)
+escape_type = 3
+column_type = 2
+# escape_type = np.random.randint(1, 6)
+# column_type = np.random.randint(2, 6)
 url = const.url + 'ctf_{0}/ctf_{0}_{1}.php'.format(escape_type + 1, column_type)
 syntaxmin = 0+escape_type*6
 syntaxmax = 6+escape_type*6

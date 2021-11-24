@@ -28,7 +28,7 @@ if (isset($_POST["id"]) && $pdo) {
     if(isset($uq["auth_bit"])){
         if($uq["auth_bit"] == "1023"){
             print "If you want to read the Flag. Read ME!";
-            phpinfo();
+            // phpinfo();
             exit();
         }
 
@@ -63,7 +63,7 @@ fieldset {
 <div id="wrapper">
 Hello guys. This is type 4.
 <br>
-<?php if ($uq["loginid"] == 2) {echo 'collect column <br>';} ?>
+<?php if ($uq["loginid"] == 1) {echo 'collect column <br>';} ?>
 <?php if($error != "") {print $error; } ?>
 <form method="POST">
     <fieldset>

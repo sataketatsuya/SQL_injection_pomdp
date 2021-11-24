@@ -55,8 +55,8 @@ class mockSQLenv(object):
                     if(self.verbose): print('Correct exploratory action for the escape. I return 2')
                     return 2, self.query_reward,self.termination,'Server response is 2'
         elif (action_number >= self.syntaxmin and action_number < self.syntaxmax):
-            print('Correct exploratory action for the escape but the column is wrong. I return 3')
-            return 3, self.flag_reward,self.termination,'Server response is 3'
+            if(self.verbose): print('Correct exploratory action for the escape but the column is wrong. I return 3')
+            return 3, self.query_reward,self.termination,'Server response is 3'
         else:
             # server responce error
             if(self.verbose): print('Server responce error. I return 0')

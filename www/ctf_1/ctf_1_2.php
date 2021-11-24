@@ -63,7 +63,7 @@ fieldset {
 <div id="wrapper">
 Hello guys. This is type 1.
 <br>
-<?php if ($uq["loginid"] == 2) {echo 'collect column <br>';} ?>
+<?php if ($uq["loginid"] == 1) {echo 'collect column <br>';} ?>
 <?php if($error != "") {print $error; } ?>
 <form method="POST">
     <fieldset>

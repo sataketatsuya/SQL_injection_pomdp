@@ -28,7 +28,7 @@ if (isset($_POST["id"]) && $pdo) {
     if(isset($uq["auth_bit"])){
         if($uq["auth_bit"] == "1023"){
             print "If you want to read the Flag. Read ME!";
-            phpinfo();
+            // phpinfo();
             exit();
         }
 
