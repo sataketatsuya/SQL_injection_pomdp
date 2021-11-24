@@ -1,46 +1,3 @@
-<?php
-/*
-
-FLAG_{EasySQLiForBeginners}
-
-*/
-
-// check mysql-server's ip address with command bellow.
-// docker inspect -f '{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -aq)
-
-ini_set('display_errors', 0);
-$DBuser = 'root';
-$DBpass = $_ENV['MYSQL_ROOT_PASSWORD'];
-$pdo = null;
-
-try{
-    $database = 'mysql:dbname=ctf;host=192.168.160.2';
-    $pdo = new PDO($database, $DBuser, $DBpass);
-} catch(PDOException $e) {
-    echo "Error: Unable to connect to MySQL. Error:\n $e";
-}
-
-if(isset($_POST["id"]) && $pdo){
-    $uq = $pdo->query("SELECT id,loginid,auth_bit,lasttime FROM users WHERE loginid = '{$_POST['id']}' AND password = '{$_POST['pw']}'")->fetchAll();
-    if(count($uq) > 0){$uq = $uq[0];}
-    if(isset($uq["auth_bit"])){
-        if($uq["auth_bit"] == "1023"){
-            print "If you want to read the Flag. Read ME!";
-            phpinfo();
-            exit();
-        }
-
-        printLoginForm($uq["loginid"] . " is Not Admin User.");
-        exit();
-    }
-    printLoginForm($_POST["id"] . "  Not Found");
-} else {
-    printLoginForm();
-}
-
-
-function printLoginForm($error=""){
-?>
 <!doctype html>
 <html>
 <head>
@@ -59,28 +16,14 @@ fieldset {
 </head>
 <body>
 <div id="wrapper">
-<?php if($error != ""){print h($error); } ?>
-<form method="POST">
-    <fieldset>
-        <label>ID</label>
-        <input type="text" name="id" size="30">
-    </fieldset>
-    <fieldset>
-        <label>PW</label>
-        <input type="password" name="pw" size="30">
-    </fieldset>
-    <input type="submit" value="Login">
-</form>
+    <ul>
+        <li>Go to <a href="./ctf_1/ctf_1_2.php">CTF page type 1</a></li>
+        <li>Go to <a href="./ctf_2/ctf_2_2.php">CTF page type 2</a></li>
+        <li>Go to <a href="./ctf_3/ctf_3_2.php">CTF page type 3</a></li>
+        <li>Go to <a href="./ctf_4/ctf_4_2.php">CTF page type 4</a></li>
+        <li>Go to <a href="./ctf_5/ctf_5_2.php">CTF page type 5</a></li>
+        <li>Go to <a href="./ctf_6/ctf_6_2.php">CTF page type 6</a></li>
+    </ul>
 </div>
 </body>
 </html>
-<?php
-}
-
-
-function h($str){
-    return htmlspecialchars($str,ENT_QUOTES,"UTF-8");
-}
-
-?>
-
