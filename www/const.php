@@ -4,4 +4,4 @@
 # docker inspect -f '{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -aq)
 $DBuser = 'root';
 $DBpass = $_ENV['MYSQL_ROOT_PASSWORD'];
-$DBipaddress = '172.24.0.2';
+$DBipaddress = '172.23.0.2';

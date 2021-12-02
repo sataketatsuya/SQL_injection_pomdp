@@ -5,10 +5,10 @@ url = 'http://127.0.0.1/'
 responce_success = 200
 
 # Actions
-actions = generate_actions.generate_actions()
+# actions = generate_actions.generate_actions()
 
 # Database
-max_esc_type = 6
+max_esc_type = 4
 min_column_type = 2
 max_column_type = 6
 
