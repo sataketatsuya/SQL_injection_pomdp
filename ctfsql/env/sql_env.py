@@ -47,14 +47,8 @@ class CTFSQLEnv(gym.Env):
     """
 
     def __init__(self):
-        self.query_reward = -1
-        self.flag_reward = 100
-
-        # Get the set of actions that are syntactically correct
-        # self.escape_type = np.random.randint(0, const.max_esc_type)
-        # self.column_type = np.random.randint(const.min_column_type, const.max_column_type)
-        # self.syntaxmin = 0 + self.escape_type * 11
-        # self.syntaxmax = 10 + self.escape_type * 11
+        self.query_reward = const.QUERY_REWARD
+        self.flag_reward = const.FLAG_REWARD
 
         self._process = None
         self.done = False
@@ -105,9 +99,11 @@ class CTFSQLEnv(gym.Env):
             obs = self.regex_feedback_url(x.text)
             if command in obs:
                 description = 'Responce is good but Query is syntactically wrong.'
-            elif 'seccon' in obs or 'flag' in obs:
+            elif 'seccon' in obs:
                 description = 'You got the flag.'
                 self.state.done = True
+                self.is_admissible_commands['table'] = False
+                self.is_admissible_commands['column'] = False
             elif 'COLUMNS' in obs and 'COLUMN_PRIVILEGES' in obs:
                 description = 'Successfully get table names in the database.'
                 if not self.state.get_table_name:
@@ -149,14 +145,14 @@ class CTFSQLEnv(gym.Env):
         self.action_len = len(generate_actions.generate_actions())
 
         # init ctf database by escape type
-        self.escape_type = np.random.randint(0, const.max_esc_type)
-        self.column_type = np.random.randint(const.min_column_type, const.max_column_type)
+        self.escape_type = np.random.randint(0, const.MAX_ESC_TYPE)
+        self.column_type = np.random.randint(const.MIN_COLUMN_TYPE, const.MAX_COLUMN_TYPE)
         self.db_config = const.db_config
         self.init_database()
 
         # Get the ip address of ctf envirnoment
-        self.url = const.url + 'ctf_{0}/ctf_{0}_{1}.php'.format(self.escape_type + 1, self.column_type)
-        self.responce_success = const.responce_success
+        self.url = const.URL + 'ctf_{0}/ctf_{0}_{1}.php'.format(self.escape_type + 1, self.column_type)
+        self.responce_success = const.RESONCE_SUCCESS
 
         # Get the set of actions that are syntactically correct
         self.syntaxmin = 0 + self.escape_type * 11
