@@ -3,7 +3,7 @@ import torch.nn as nn
 from torch import optim
 import torch.nn.functional as F
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+import const
 
 
 class CommandScorer(nn.Module):
@@ -15,7 +15,7 @@ class CommandScorer(nn.Module):
         self.cmd_encoder_gru  = nn.GRU(hidden_size, hidden_size)
         self.state_gru    = nn.GRU(hidden_size, hidden_size)
         self.hidden_size  = hidden_size
-        self.state_hidden = torch.zeros(1, 1, hidden_size, device=device)
+        self.state_hidden = torch.zeros(1, 1, hidden_size, device=const.DEVICE)
         self.critic       = nn.Linear(hidden_size, 1)
         self.att_cmd      = nn.Linear(hidden_size * 2, 1)
 
@@ -51,4 +51,4 @@ class CommandScorer(nn.Module):
         return scores, index, value
 
     def reset_hidden(self, batch_size):
-        self.state_hidden = torch.zeros(1, batch_size, self.hidden_size, device=device)
+        self.state_hidden = torch.zeros(1, batch_size, self.hidden_size, device=const.DEVICE)
