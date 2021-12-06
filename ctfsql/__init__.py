@@ -5,3 +5,8 @@ register(
     id='ctfsql-v0',
     entry_point='ctfsql.env:CTFSQLEnv',
 )
+
+register(
+    id='ctfsql-v1',
+    entry_point='ctfsql.env:CTFSQLEnv1',
+)

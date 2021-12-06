@@ -71,7 +71,7 @@ class NeuralAgent:
         R = last_values.data
         for t in reversed(range(len(self.transitions))):
             rewards, _, _, values = self.transitions[t]
-            R = rewards + self.GAMMA * R
+            R = rewards + const.GAMMA * R
             adv = R - values
             returns.append(R)
             advantages.append(adv)
@@ -103,14 +103,12 @@ class NeuralAgent:
             reward = score - self.last_score  # Reward is the gain/loss in score.
             self.last_score = score
             if infos["won"]:
-                reward += 100
-            if infos["lost"]:
-                reward -= 100
-                
+                reward += const.FLAG_REWARD
+
             self.transitions[-1][0] = reward  # Update reward information.
         
         self.stats["max"]["score"].append(score)
-        if self.no_train_step % self.UPDATE_FREQUENCY == 0:
+        if self.no_train_step % const.UPDATE_FREQUENCY == 0:
             # Update model
             returns, advantages = self._discount_rewards(values)
             
@@ -133,7 +131,7 @@ class NeuralAgent:
                 self.stats["mean"]["entropy"].append(entropy.item())
                 self.stats["mean"]["confidence"].append(torch.exp(log_action_probs).item())
             
-            if self.no_train_step % self.LOG_FREQUENCY == 0:
+            if self.no_train_step % const.LOG_FREQUENCY == 0:
                 msg = "{:6d}. ".format(self.no_train_step)
                 msg += "  ".join("{}: {: 3.3f}".format(k, np.mean(v)) for k, v in self.stats["mean"].items())
                 msg += "  " + "  ".join("{}: {:2d}".format(k, np.max(v)) for k, v in self.stats["max"].items())
