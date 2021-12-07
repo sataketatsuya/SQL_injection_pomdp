@@ -19,7 +19,6 @@ try{
 
 if (isset($_POST["id"]) && $pdo) {
     $uq = $pdo->query("SELECT loginid,id,auth_bit,lasttime,comment FROM users WHERE (loginid = \"{$_POST['id']}\") AND (password = \"{$_POST['pw']}\")")->fetchAll();
-    var_dump($uq);
     if(count($uq) > 0){$uq = $uq[0];}
     if(isset($uq["auth_bit"])){
         if($uq["auth_bit"] == "1023"){
