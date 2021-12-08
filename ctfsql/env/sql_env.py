@@ -147,8 +147,8 @@ class CTFSQLEnv(gym.Env):
         # init ctf database by escape type
         self.escape_type = np.random.randint(0, const.MAX_ESC_TYPE)
         self.column_type = np.random.randint(const.MIN_COLUMN_TYPE, const.MAX_COLUMN_TYPE)
-        self.db_config = const.db_config
-        self.init_database()
+        # self.db_config = const.db_config
+        # self.init_database()
 
         # Get the ip address of ctf envirnoment
         self.url = const.URL + 'ctf_{0}/ctf_{0}_{1}.php'.format(self.escape_type + 1, self.column_type)
