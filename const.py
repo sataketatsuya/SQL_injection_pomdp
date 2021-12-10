@@ -18,6 +18,7 @@ MAX_VOCAB_SIZE = 10000
 UPDATE_FREQUENCY = 20
 LOG_FREQUENCY = 100
 GAMMA = 0.8
+UPDATE_GLOBAL_ITER = 5
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
