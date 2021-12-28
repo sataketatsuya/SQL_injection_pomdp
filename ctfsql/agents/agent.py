@@ -82,8 +82,8 @@ class NeuralAgent:
 
     def act(self, obs: str, score: int, done: bool, infos: Mapping[str, Any]):
 
-        # Build agent's observation: feedback + look + inventory.
-        input_ = "{}\n{}\n{}".format(obs, infos["description"], infos["inventory"])
+        # Build agent's observation: html_feedback + look + status_code + url.
+        input_ = "{}\n{}\n{}\n{}".format(obs, infos["description"], infos["status_code"], infos["url"])
 
         # Tokenize and pad the input and the commands to chose from.
         input_tensor = self._process([input_])
@@ -110,7 +110,7 @@ class NeuralAgent:
             self.transitions[-1][0] = reward  # Update reward information.
 
         self.stats["max"]["score"].append(score)
-        if self.no_train_step % const.UPDATE_FREQUENCY == 0:
+        if infos["won"]:
             # Update model
             returns, advantages = self._discount_rewards(values)
 
@@ -133,13 +133,13 @@ class NeuralAgent:
                 self.stats["mean"]["entropy"].append(entropy.item())
                 self.stats["mean"]["confidence"].append(torch.exp(log_action_probs).item())
 
-            if self.no_train_step % const.LOG_FREQUENCY == 0:
-                msg = "{:6d}. ".format(self.no_train_step)
-                msg += "  ".join("{}: {: 3.3f}".format(k, np.mean(v)) for k, v in self.stats["mean"].items())
-                msg += "  " + "  ".join("{}: {:2d}".format(k, np.max(v)) for k, v in self.stats["max"].items())
-                msg += "  vocab: {:3d}".format(len(self.id2word))
-                print(msg)
-                self.stats = {"max": defaultdict(list), "mean": defaultdict(list)}
+            msg = "{:6d}. ".format(self.no_train_step)
+            msg += "  ".join("{}: {: 3.3f}".format(k, np.mean(v)) for k, v in self.stats["mean"].items())
+            msg += "  " + "  ".join("{}: {:2d}".format(k, np.max(v)) for k, v in self.stats["max"].items())
+            msg += "  vocab: {:3d}".format(len(self.id2word))
+            msg += "  loss: {:3d}".format(loss)
+            print(msg)
+            self.stats = {"max": defaultdict(list), "mean": defaultdict(list)}
 
             loss.backward()
             self.g_optimizer.zero_grad()
