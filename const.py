@@ -1,16 +1,26 @@
-import generate_actions
+import torch
 
 # Server
-url = 'http://127.0.0.1/'
-responce_success = 200
+URL = 'http://127.0.0.1/'
+RESONCE_SUCCESS = 200
 
-# Actions
-actions = generate_actions.generate_actions()
+# Reward
+QUERY_REWARD = 0
+FLAG_REWARD = 100
 
 # Database
-max_esc_type = 6
-min_column_type = 2
-max_column_type = 6
+MAX_ESC_TYPE = 4
+MIN_COLUMN_TYPE = 2
+MAX_COLUMN_TYPE = 6
+
+# Neural Agent
+MAX_VOCAB_SIZE = 10000
+UPDATE_FREQUENCY = 1000
+LOG_FREQUENCY = 100
+GAMMA = 0.8
+UPDATE_GLOBAL_ITER = 5
+
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 db_config = {
     'user': 'root',
@@ -23,8 +33,8 @@ users_dataset_text = {
     (2, 'eve', 'fewc3m4tC', 0, '2017-01-01 00:00:00', 'pen'),
     (3, 'seccon', 'SECCON_4b', 1023, '2017-01-01 00:00:00', 'piece'),
     (4, 'lee', 'sin', 0, '2017-01-01 00:00:00', 'world'),
-    (5, 'pat', 'goMFE', 0, '2017-01-01 00:00:00', 'pat'),
-    (6, 'bob', 'bobobobob',0, '2017-01-01 00:00:00', 'nice'),
+    (5, 'pat', 'goMFE', 0, '2017-01-01 00:00:00', 'party'),
+    (6, 'beee', 'bobobobob',0, '2017-01-01 00:00:00', 'nice'),
     (7, 'key', 'wordisSQLi',0, '2017-01-01 00:00:00', 'good')
 }
 users_dataset_int = {

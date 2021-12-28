@@ -4,3 +4,9 @@
 /data/*
 /logs/*
 .DS_Store
+__pycache__/
+/*.pkl
+/*.png
+/*.npy
+/.ipynb_checkpoints/*
+https://github.com/sataketatsuya/SQL_injection_pomdp.git

@@ -14,15 +14,10 @@ try{
     $database = 'mysql:dbname=ctf;host='.$DBipaddress;
     $pdo = new PDO($database, $DBuser, $DBpass);
 } catch(PDOException $e) {
-    // echo "Error: Unable to connect to MySQL. Error:\n $e";
+    echo $e->getMessage();
 }
 
 if (isset($_POST["id"]) && $pdo) {
-    // $uq = $pdo->query("SELECT loginid,auth_bit FROM users WHERE loginid = '{$_POST['id']}' AND password = '{$_POST['pw']}'")->fetchAll();
-    // $uq = $pdo->query("SELECT id,loginid,auth_bit,lasttime,comment FROM users WHERE (loginid = '{$_POST['id']}') AND (password = '{$_POST['pw']}')")->fetchAll();
-    // $uq = $pdo->query("SELECT id,loginid,auth_bit,lasttime,comment FROM users WHERE loginid = \"{$_POST['id']}\" AND password = \"{$_POST['pw']}\"")->fetchAll();
-    // $uq = $pdo->query("SELECT id,loginid,auth_bit,lasttime,comment FROM users WHERE (loginid = \"{$_POST['id']}\") AND (password = \"{$_POST['pw']}\")")->fetchAll();
-    // $uq = $pdo->query("SELECT id,loginid,auth_bit,lasttime,comment FROM users WHERE loginid = {$_POST['id']} AND password = {$_POST['pw']}")->fetchAll();
     $uq = $pdo->query("SELECT loginid,auth_bit FROM users WHERE (loginid = {$_POST['id']}) AND (password = {$_POST['pw']})")->fetchAll();
     if(count($uq) > 0){$uq = $uq[0];}
     if(isset($uq["auth_bit"])){
@@ -61,8 +56,6 @@ fieldset {
 </head>
 <body>
 <div id="wrapper">
-Hello guys. This is type 6.
-<br>
 <?php if ($uq["loginid"] == 1 AND strpos($_POST["id"], 'UNION') != false) {echo 'collect column <br>';} ?>
 <?php if($error != "") {print $error; } ?>
 <form method="POST">
