@@ -91,8 +91,8 @@ class CTFSQLEnv(gym.Env):
 
         # Process action
         description = ''
-        if ',pass,' in command:
-            split_command = command.split(',pass,')
+        if '|' in command:
+            split_command = command.split('|')
             x = requests.post(self.url, data = {'id': split_command[0], 'pw': split_command[1]})
         else:
             x = requests.post(self.url, data = {'id': command, 'pw': ''})
@@ -115,7 +115,7 @@ class CTFSQLEnv(gym.Env):
                 self.is_admissible_commands['input_form'] = False
                 if not self.state.set_file_path:
                     self.is_admissible_commands['file_path'] = True
-            elif ',pass,' in command:
+            elif '|' in command:
                 description = 'You did not achieve phpinfo data.'
             elif 'load_file' in command:
                 description = 'Not found the file_path.'
@@ -145,7 +145,6 @@ class CTFSQLEnv(gym.Env):
         self.state.score = self.flag_reward if self.state.done else self.query_reward
         self.state.infos = {
             'admissible_commands': self.admissible_commands(obs),
-            'inventory': self.inventory(),
             'description': description,
             'won': self.state.done,
             'max_score': 100,
@@ -261,7 +260,7 @@ class CTFSQLEnv(gym.Env):
             text = self.regex_feedback_url(paragraphs[0])
 
             escape = ["'", "')", '"', '")'][self.escape_type]
-            base_column_query = "{0} UNION SELECT GROUP_CONCAT(concat({1}), '<SEP>'), {2} from {3}; -- "
+            base_column_query = "{0} UNION SELECT GROUP_CONCAT('<SEP>', concat({1}), '<SEP>'), {2} from {3}; -- "
             table = self.state.table_info[self.state.last_command_id]['table']
             column_num = self.state.table_info[self.state.last_command_id]['column_num']
             columns = "1"
@@ -285,11 +284,7 @@ class CTFSQLEnv(gym.Env):
                 if len(inputs.split()) == 7:
                     input_list = []
                     for input in inputs.split():
-                        if not input.isdigit() \
-                            and re.match('^[,](\d{1})$', input) is None \
-                            and re.match('(\d{4})[/.-](\d{2})[/.-](\d{2})$', input) is None \
-                            and re.match('(\d{2})[:](\d{2})[:](\d{2})$', input) is None:
-                            input_list.append(input)
+                        input_list.append(input)
                     input_lists.append(input_list)
 
             for lists in input_lists:
@@ -302,7 +297,7 @@ class CTFSQLEnv(gym.Env):
                         for list in lists:
                             for command in commands:
                                 if not list in command:
-                                    command = command + ',pass,' + list
+                                    command = command + '|' + list
                                     if command not in self.action_space:
                                         self.action_space.append(command)
 
