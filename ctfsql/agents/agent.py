@@ -15,11 +15,13 @@ from ctfsql.agents.command_scorer import CommandScorer
 class NeuralAgent:
     """ Simple Neural Agent for playing TextWorld games. """
 
-    def __init__(self) -> None:
+    def __init__(self, g_model, g_optimizer) -> None:
         self._initialized = False
         self._epsiode_has_started = False
         self.id2word = ["<PAD>", "<UNK>"]
         self.word2id = {w: i for i, w in enumerate(self.id2word)}
+
+        self.g_model, self.g_optimizer = g_model, g_optimizer
 
         self.model = CommandScorer(input_size=const.MAX_VOCAB_SIZE, hidden_size=128)
         self.optimizer = optim.Adam(self.model.parameters(), 0.00003)
@@ -140,12 +142,16 @@ class NeuralAgent:
             self.stats = {"max": defaultdict(list), "mean": defaultdict(list)}
 
             loss.backward()
+            self.g_optimizer.zero_grad()
             nn.utils.clip_grad_norm_(self.model.parameters(), 40)
             self.optimizer.step()
             self.optimizer.zero_grad()
 
             self.transitions = []
             self.model.reset_hidden(1)
+
+            # pull global parameters
+            self.model.load_state_dict(self.g_model.state_dict())
         else:
             # Keep information about transitions for Truncated Backpropagation Through Time.
             self.transitions.append([None, indexes, outputs, values])  # Reward will be set on the next call
